@@ -87,13 +87,58 @@ document.getElementById("uploadForm")
 
     try{
 
+        document.getElementById("uploadForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    document.getElementById("message").innerHTML =
+    "Processing...";
+
+    try {
+
         const response = await fetch(
             "https://disperser-proximity-exposure.ngrok-free.dev/webhook-test/gst-reconciliation",
             {
-                method:"POST",
-                body:formData
+                method: "POST",
+                body: formData
             }
         );
+
+        if (!response.ok) {
+            throw new Error("Upload failed");
+        }
+
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "GST_Reconciliation_Report.xlsx";
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+
+        document.getElementById("message").innerHTML =
+        "✅ Report downloaded";
+
+    }
+    catch(err) {
+
+        console.error(err);
+
+        document.getElementById("message").innerHTML =
+        "❌ Upload failed";
+
+    }
+
+});
 
         if(response.ok){
             document.getElementById("message").innerHTML =
